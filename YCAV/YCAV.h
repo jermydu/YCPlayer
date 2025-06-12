@@ -1,16 +1,25 @@
 #ifndef _YCAV_H
 #define _YCAV_H
 
-#include "YCCommonDef.h"
+namespace YCAV 
+{
+	//避免外部引用这个文件的时候 需要指定ffmpeg头文件
+	enum class YCRet;
 
-namespace YCAV {
-
-	class YCAVPacket {
+	class YCAVPacketPrivate;
+	class YCAVPacket
+	{	
 	public:
+		YCAVPacket();
+		virtual ~YCAVPacket();
+	public:
+		YCAVPacketPrivate* pAvPacketImp{nullptr};
 
 	};
-	
-	class YCAVReader {
+
+	class YCAVFormatContextPrivate;
+	class YCAVReader 
+	{
 	public:
 		YCAVReader();
 		virtual ~YCAVReader();
@@ -21,7 +30,7 @@ namespace YCAV {
 		YCRet Read(YCAVPacket* packet);
 		
 	private:
-		AVFormatContext* pAvFormatContext = nullptr;
+		YCAVFormatContextPrivate* pAVFormatContextImp{ nullptr };
 	};
 }
 

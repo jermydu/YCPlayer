@@ -20,14 +20,30 @@ link_libraries("swresample.lib")
 link_libraries("swscale.lib")
 
 # 设置 Debug 和 Release 模式的静态库路径
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-    link_directories(${PROJECT_SOURCE_DIR}/dependents/spdlog/lib/Debug)
-    link_libraries("spdlogd.lib") 
-elseif(CMAKE_BUILD_TYPE STREQUAL "Release")
-    link_directories(${PROJECT_SOURCE_DIR}/dependents/spdlog/lib/Release)
-    link_libraries("spdlog.lib") 
+if(CMAKE_CONFIGURATION_TYPES)
+    # 多配置生成器，如 Visual Studio
+    foreach(build_type IN LISTS CMAKE_CONFIGURATION_TYPES)
+        if(build_type STREQUAL "Debug")
+            # 为 Debug 配置设置库路径和链接库
+            link_directories(${PROJECT_SOURCE_DIR}/dependents/spdlog/lib/Debug)
+            link_libraries("spdlogd.lib") 
+        elseif(build_type STREQUAL "Release")
+            # 为 Release 配置设置库路径和链接库
+            link_directories(${PROJECT_SOURCE_DIR}/dependents/spdlog/lib/Release)
+            link_libraries("spdlog.lib") 
+        endif()
+    endforeach()
 else()
-    message(FATAL_ERROR "Unsupported build type: ${CMAKE_BUILD_TYPE}")
+    # 单配置生成器
+    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+        link_directories(${PROJECT_SOURCE_DIR}/dependents/spdlog/lib/Debug)
+        link_libraries("spdlogd.lib") 
+    elseif(CMAKE_BUILD_TYPE STREQUAL "Release")
+        link_directories(${PROJECT_SOURCE_DIR}/dependents/spdlog/lib/Release)
+        link_libraries("spdlog.lib") 
+    else()
+        message(FATAL_ERROR "Unsupported build type: ${CMAKE_BUILD_TYPE}")
+    endif()
 endif()
 
 # 将源代码添加到此项目的可执行文件。

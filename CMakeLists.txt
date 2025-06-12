@@ -17,3 +17,4 @@ project ("YCPlayer")
 # 包含子项目。
 add_subdirectory ("YCPlayer")
 add_subdirectory ("YCAV")
+add_subdirectory ("YCThread")
