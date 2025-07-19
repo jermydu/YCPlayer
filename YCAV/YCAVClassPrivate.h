@@ -7,7 +7,7 @@ extern "C"
 }
 
 #include "YCCommonDef.h"
-#include "spdlog/spdlog.h"
+#include "YCLogger.h"
 #include <string>
 using namespace std;
 
