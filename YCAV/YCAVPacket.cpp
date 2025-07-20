@@ -5,21 +5,26 @@ namespace YCAV
 {
 	YCAVPacket::YCAVPacket()
 	{
-		pAvPacketImp = new YCAVPacketPrivate();
-		pAvPacketImp->pAvPacket = av_packet_alloc();
+		imp = new YCAVPacketPrivate();
+		imp->pAvPacket = av_packet_alloc();
 	}
 
 	YCAVPacket::~YCAVPacket()
 	{
-		if (pAvPacketImp->pAvPacket)
+		if (imp->pAvPacket)
 		{
-			av_packet_free(&pAvPacketImp->pAvPacket);
-			pAvPacketImp->pAvPacket = nullptr;
+			av_packet_free(&imp->pAvPacket);
+			imp->pAvPacket = nullptr;
 		}
-		if (pAvPacketImp)
+		if (imp)
 		{
-			delete pAvPacketImp;
-			pAvPacketImp = nullptr;
+			delete imp;
+			imp = nullptr;
 		}
+	}
+
+	int YCAVPacket::GetStreamIndex() const
+	{
+		return imp->pAvPacket->stream_index;
 	}
 }

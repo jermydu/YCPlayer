@@ -10,6 +10,7 @@ file(GLOB_RECURSE SRC ${PROJECT_SOURCE_DIR}/YCPlayer/*.cpp)
 include_directories(${PROJECT_SOURCE_DIR}/dependents/spdlog/include)
 include_directories(${PROJECT_SOURCE_DIR}/YCAV)
 include_directories(${PROJECT_SOURCE_DIR}/YCLogger/include)
+include_directories(${PROJECT_SOURCE_DIR}/YCQueue)
 
 link_directories(${PROJECT_SOURCE_DIR}/dependents/ffmpeg-6.0-full_build-shared/lib)
 link_directories(${PROJECT_SOURCE_DIR}/lib/YCLogger)

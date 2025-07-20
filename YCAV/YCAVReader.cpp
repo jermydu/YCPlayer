@@ -11,21 +11,21 @@ namespace YCAV
 		// 设置日志级别为 debug
 		//YCLogger::Logger::SetLogLevel(YCLogger::LoggerLevel::Debug);
 
-		pAVFormatContextImp = new YCAVFormatContextPrivate();
-		pAVFormatContextImp->pAvFormatContext = avformat_alloc_context();
+		imp = new YCAVFormatPrivate();
+		imp->pAvFormatContext = avformat_alloc_context();
 	}
 
 	YCAVReader::~YCAVReader() 
 	{
-		if (pAVFormatContextImp->pAvFormatContext)
+		if (imp->pAvFormatContext)
 		{
-			avformat_free_context(pAVFormatContextImp->pAvFormatContext);
-			pAVFormatContextImp->pAvFormatContext = nullptr;
+			avformat_free_context(imp->pAvFormatContext);
+			imp->pAvFormatContext = nullptr;
 		}
-		if (pAVFormatContextImp)
+		if (imp)
 		{
-			delete pAVFormatContextImp;
-			pAVFormatContextImp = nullptr;
+			delete imp;
+			imp = nullptr;
 		}
 		// 关闭日志系统
 		//YCLogger::Logger::Shutdown();
@@ -33,7 +33,7 @@ namespace YCAV
 
 	YCRet YCAVReader::Open(const char* path) 
 	{
-		if (pAVFormatContextImp->pAvFormatContext == nullptr)
+		if (imp->pAvFormatContext == nullptr)
 		{
 			return YCRet::YCRet_CreateContextFailed;
 		}
@@ -42,13 +42,13 @@ namespace YCAV
 			return YCRet::YCRet_NotExist;
 		}
 
-		int ret = avformat_open_input(&pAVFormatContextImp->pAvFormatContext, path, nullptr, nullptr);
+		int ret = avformat_open_input(&imp->pAvFormatContext, path, nullptr, nullptr);
 		if (ret != 0)
 		{
 			LOG_ERROR("avformat_open_input failed: error={0}", { GetFfmpegErrorString(ret) });
 			return YCRet::YCRet_OpenFileFailed;
 		}
-		ret = avformat_find_stream_info(pAVFormatContextImp->pAvFormatContext, nullptr);
+		ret = avformat_find_stream_info(imp->pAvFormatContext, nullptr);
 		if (ret != 0) 
 		{
 			LOG_ERROR("avformat_find_stream_info failed: error={0}", { GetFfmpegErrorString(ret) });
@@ -62,13 +62,13 @@ namespace YCAV
             //自己从avformatContex中取数据
             LOG_INFO("---avformat_find_stream_info");
             //路径名/文件名
-            LOG_INFO("media name-->[{0}]", { pAVFormatContextImp->pAvFormatContext->url });
+            LOG_INFO("media name-->[{0}]", { imp->pAvFormatContext->url });
             //流媒体数量
-            LOG_INFO("stream number-->[{0}]", { std::to_string(pAVFormatContextImp->pAvFormatContext->nb_streams) });
+            LOG_INFO("stream number-->[{0}]", { std::to_string(imp->pAvFormatContext->nb_streams) });
             //媒体文件码率 单位bps
-            LOG_INFO("media bitrate-->[{0}kbps]", { std::to_string(pAVFormatContextImp->pAvFormatContext->bit_rate / 1024)});
+            LOG_INFO("media bitrate-->[{0}kbps]", { std::to_string(imp->pAvFormatContext->bit_rate / 1024)});
             //duration  微妙->秒
-            int totalSeconds = pAVFormatContextImp->pAvFormatContext->duration / AV_TIME_BASE;
+            int totalSeconds = imp->pAvFormatContext->duration / AV_TIME_BASE;
             int hour = totalSeconds / 3600;
             int minute = (totalSeconds % 3600) / 60;
             int second = totalSeconds % 60;
@@ -78,10 +78,10 @@ namespace YCAV
             //遍历方式读取视频信息和音频信息
 			int nAudioIndex = -1;
 			int nVideoIndex = -1;
-            for (uint32_t i = 0; i < pAVFormatContextImp->pAvFormatContext->nb_streams; ++i)
+            for (uint32_t i = 0; i < imp->pAvFormatContext->nb_streams; ++i)
             {
                 //获取一个流
-                AVStream* pAVStream = pAVFormatContextImp->pAvFormatContext->streams[i];
+                AVStream* pAVStream = imp->pAvFormatContext->streams[i];
                 //音频流
                 if (AVMEDIA_TYPE_AUDIO == pAVStream->codecpar->codec_type)
                 {
@@ -205,23 +205,43 @@ namespace YCAV
 		return YCRet::YCRet_OK;
 	}
 
-	YCRet YCAVReader::Close() 
+	int YCAVReader::GetStreamCount() const
 	{
-		if (pAVFormatContextImp->pAvFormatContext == nullptr)
+		return imp->pAvFormatContext ? imp->pAvFormatContext->nb_streams : 0;
+	}
+	YCRet YCAVReader::GetStream(int index, YCAVStream* pYcAvStream) const
+	{
+		if (imp->pAvFormatContext)
+		{
+			AVStream* pAVStream = imp->pAvFormatContext->streams[index];
+			pYcAvStream->streamIndex = pAVStream->index;
+			avcodec_parameters_copy(pYcAvStream->imp->pAvCodecParameters,pAVStream->codecpar);
+
+			return YCRet::YCRet_OK;
+		}
+		else
 		{
 			return YCRet::YCRet_CreateContextFailed;
 		}
-		avformat_close_input(&pAVFormatContextImp->pAvFormatContext);
+	}
+
+	YCRet YCAVReader::Close() 
+	{
+		if (imp->pAvFormatContext == nullptr)
+		{
+			return YCRet::YCRet_CreateContextFailed;
+		}
+		avformat_close_input(&imp->pAvFormatContext);
 		return YCRet::YCRet_OK;
 	}
 
 	YCRet YCAVReader::Read(YCAVPacket* pPacket)
 	{
-		if (pAVFormatContextImp->pAvFormatContext == nullptr)
+		if (imp->pAvFormatContext == nullptr)
 		{
 			return YCRet::YCRet_CreateContextFailed;
 		}
-		int ret = av_read_frame(pAVFormatContextImp->pAvFormatContext, pPacket->pAvPacketImp->pAvPacket);
+		int ret = av_read_frame(imp->pAvFormatContext, pPacket->imp->pAvPacket);
 		if (ret == 0)
 		{
 			return YCRet::YCRet_OK;
@@ -246,4 +266,15 @@ namespace YCAV
 			}
 		}
 	}
+
+	int YCAVReader::GetVideoStreamIndex()const
+	{
+		return av_find_best_stream(imp->pAvFormatContext, AVMediaType::AVMEDIA_TYPE_VIDEO, -1, -1, nullptr, 0);
+	}
+	int YCAVReader::GetAudioStreamIndex()const 
+	{
+		return av_find_best_stream(imp->pAvFormatContext, AVMediaType::AVMEDIA_TYPE_AUDIO, -1, -1, nullptr, 0);
+
+	}
+
 }

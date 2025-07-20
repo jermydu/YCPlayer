@@ -38,6 +38,12 @@ namespace YCAV
 		YCRet_WritePacketFailed = -110,      //写packet到封装器失败
 		YCRet_ReadPacketOtherError = -111,	 //读取packet时的未知错误
 
+		//codec
+		YCRet_FindDecoderFailed = -201,      //查找解码器失败
+		YCRet_OpenDecoderFailed = -202,      //打开解码器失败
+		YCRet_SendAvPacketFailed = -202,     //发送avpacket到解码器失败
+		YCRet_ReceiveAvFrameFailed = -203,   //从解码器接收avframe失败
+
 	};
 }
 
