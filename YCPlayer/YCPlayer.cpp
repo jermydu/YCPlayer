@@ -9,16 +9,15 @@
 #include <memory>
 #include <vector>
 using namespace std;
-using namespace YCAV;
-using namespace YCQUEUE;
+using namespace YCLIB;
 
 int main()
 {
 	// 初始化日志系统，指定日志文件路径
-	YCLogger::Logger::Initialize("app.log", false);
+	Logger::instance().Initialize("YCPlayer.log", false);
 
 	// 设置日志级别为 debug
-	YCLogger::Logger::SetLogLevel(YCLogger::LoggerLevel::Debug);
+	Logger::instance().SetLogLevel(LoggerLevel::Debug);
 
 	YCAVReader reader;
 	const char videoPath[]  = "./testvideo3.mp4";
@@ -61,9 +60,11 @@ int main()
 	}
 
 	//测试播放 ffplay -pixel_format yuv420p -video_size 1280x720 -framerate 25 .\testvideo3_1280x720_yuv420p.yuv
-	FILE* pVideoFile = fopen("./testvideo3_1280x720_yuv420p.yuv", "wb");
+	FILE* pVideoFile = nullptr;
+	fopen_s(&pVideoFile,"./testvideo3_1280x720_yuv420p.yuv", "wb");
 	//测试播放 ffplay -f f32le -ar 44100 -ac 2 .\testvideo3.pcm
-	FILE* pAudioFile = fopen("./testvideo3.pcm", "wb");
+	FILE* pAudioFile = nullptr;
+	fopen_s(&pAudioFile,"./testvideo3.pcm", "wb");
 
 	YCQueue<YCAVPacket> packetQueue;
 
@@ -129,7 +130,7 @@ int main()
 					}
 					else
 					{
-						//LOG_INFO("receive frame success, streamIndex:{0}", { std::to_string(streamIndex) });
+						LOG_INFO("receive frame success, streamIndex:{0}", { std::to_string(streamIndex) });
 						// 处理解码后的帧（ycAvFrame）
 						if (iVideoStreamIndex == pYcAvPacket->GetStreamIndex())
 						{
@@ -244,9 +245,6 @@ int main()
 
 	//清理解码器
 	vYcAvDecodersList.clear();
-
-	// 关闭日志系统
-	YCLogger::Logger::Shutdown();
 
 	return 0;
 }

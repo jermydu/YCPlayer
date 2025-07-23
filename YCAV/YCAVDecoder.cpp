@@ -1,7 +1,7 @@
 #include "YCAV.h"
 #include "YCAVClassPrivate.h"
 
-namespace YCAV 
+namespace YCLIB 
 {
 	YCAVDecoder::YCAVDecoder() 
 	{

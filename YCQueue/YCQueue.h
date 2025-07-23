@@ -5,7 +5,7 @@
 #include <mutex>
 #include <memory>
 
-namespace YCQUEUE
+namespace YCLIB
 {
 	template<typename T>
 	class YCQueue

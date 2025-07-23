@@ -1,7 +1,7 @@
 #ifndef _YCAV_H
 #define _YCAV_H
 
-namespace YCAV 
+namespace YCLIB
 {
 	//避免外部引用这个文件的时候 需要指定ffmpeg头文件
 	enum class YCRet;

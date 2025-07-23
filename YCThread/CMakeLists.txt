@@ -4,6 +4,8 @@ add_compile_options("/utf-8")
 file(GLOB_RECURSE SRC ${PROJECT_SOURCE_DIR}/YCThread/*.cpp)
 add_library (YCThread ${SRC})
 
+install(TARGETS YCThread DESTINATION ${PROJECT_SOURCE_DIR}/lib/YCThread)
+
 if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET YCThread PROPERTY CXX_STANDARD 20)
 endif()

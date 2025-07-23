@@ -15,7 +15,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
 project ("YCPlayer")
 
 # 包含子项目。
-add_subdirectory ("YCPlayer")
-add_subdirectory ("YCAV")
-add_subdirectory ("YCThread")
 add_subdirectory ("YCLogger")
+add_subdirectory ("YCThread")
+add_subdirectory ("YCAV")
+add_subdirectory ("YCPlayer")

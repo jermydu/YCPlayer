@@ -14,7 +14,7 @@ extern "C"
 #include <string>
 using namespace std;
 
-namespace YCAV
+namespace YCLIB
 {
 	class YCAVPacketPrivate
 	{

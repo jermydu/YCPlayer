@@ -4,7 +4,7 @@
 #include <string>
 #include <utility> // for std::forward
 
-namespace YCLogger {
+namespace YCLIB {
 
 enum class LoggerLevel
 {
@@ -14,4 +14,4 @@ enum class LoggerLevel
     Error,
 };
 
-}  // namespace YCLogger
+}  // namespace YCLIB

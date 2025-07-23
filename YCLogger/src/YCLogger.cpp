@@ -7,7 +7,7 @@
 #include <spdlog/async.h>
 #include <spdlog/async_logger.h>
 
-namespace YCLogger
+namespace YCLIB
 {
 
     class Logger::Impl
@@ -99,11 +99,25 @@ namespace YCLogger
         std::shared_ptr<spdlog::details::thread_pool> thread_pool_; // 如果需要异步日志，可以使用线程池
     };
 
-    std::unique_ptr<Logger::Impl> Logger::impl_;
+    // 单例定义
+    Logger& Logger::instance() 
+    {
+        static Logger inst;
+        return inst;
+    }
+
+    Logger::Logger() : impl_(std::make_unique<Impl>()) 
+    {
+
+    }
+
+    Logger::~Logger()
+    {
+        Shutdown();
+    }
 
     void Logger::Initialize(const std::string &log_file, bool async, size_t queue_size, size_t thread_count)
     {
-        impl_ = std::make_unique<Impl>();
         impl_->logger_ = impl_->CreateLogger(log_file, async, queue_size, thread_count);
     }
 
@@ -152,4 +166,4 @@ namespace YCLogger
         std::string msg = "[" + std::string(function) + ":" + std::to_string(line) + "] " + Impl::Format(fmt, args);
         impl_->logger_->error(msg);
     }
-} // namespace YCLogger
+} // namespace YCLIB

@@ -4,8 +4,11 @@ add_compile_options(/utf-8)
 
 include_directories(./include)
 include_directories(${PROJECT_SOURCE_DIR}/dependents/spdlog/include)
-message(222${PROJECT_SOURCE_DIR})
-add_library(YCLogger STATIC src/YCLogger.cpp)
+
+add_library(YCLogger SHARED src/YCLogger.cpp)
+
+#导出所有符号
+set_target_properties(YCLogger PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS ON)
 
 install(TARGETS YCLogger DESTINATION ${PROJECT_SOURCE_DIR}/lib/YCLogger)
 

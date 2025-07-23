@@ -1,6 +1,6 @@
 #include "YCAVClassPrivate.h"
 
-namespace YCAV
+namespace YCLIB
 {
 	string GetFfmpegErrorString(int err)
 	{

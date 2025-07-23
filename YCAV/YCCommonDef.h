@@ -1,7 +1,7 @@
 #ifndef _YCCOMMONDEF_H
 #define _YCCOMMONDEF_H
 
-namespace YCAV
+namespace YCLIB
 {
 	enum class YCRet
 	{
