@@ -11,10 +11,19 @@ include_directories(${PROJECT_SOURCE_DIR}/YCLogger/include)
 # link
 link_directories(${PROJECT_SOURCE_DIR}/lib/YCLogger)
 link_directories(${PROJECT_SOURCE_DIR}/dependents/ffmpeg-6.0-full_build-shared/lib)
+add_library (YCAV SHARED ${SRC})
 
 # 将源代码添加到此项目的可执行文件。
-file(GLOB_RECURSE SRC ${PROJECT_SOURCE_DIR}/YCAV/*.cpp)
-add_library (YCAV SHARED ${SRC})
+target_sources(YCAV PRIVATE
+    ${PROJECT_SOURCE_DIR}/YCAV/YCAVReader.cpp
+    ${PROJECT_SOURCE_DIR}/YCAV/YCAVDecoder.cpp
+    ${PROJECT_SOURCE_DIR}/YCAV/YCAVFrame.cpp
+    ${PROJECT_SOURCE_DIR}/YCAV/YCAVGlobalFnc.cpp
+    ${PROJECT_SOURCE_DIR}/YCAV/YCAVGlobalFnc.cpp
+    ${PROJECT_SOURCE_DIR}/YCAV/YCAVPacket.cpp
+    ${PROJECT_SOURCE_DIR}/YCAV/YCAVStream.cpp
+    ${PROJECT_SOURCE_DIR}/YCAV/YCAVClassPrivate.cpp
+)
 
 #导出所有符号
 set_target_properties(YCAV PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS ON)

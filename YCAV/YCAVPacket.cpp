@@ -1,30 +1,18 @@
 #include "YCAV.h"
 #include "YCAVClassPrivate.h"
 
-namespace YCLIB 
-{
-	YCAVPacket::YCAVPacket()
-	{
-		imp = new YCAVPacketPrivate();
-		imp->pAvPacket = av_packet_alloc();
+namespace YCLIB {
+	YCAVPacket::YCAVPacket() :imp(new Imp) {
 	}
 
-	YCAVPacket::~YCAVPacket()
-	{
-		if (imp->pAvPacket)
-		{
-			av_packet_free(&imp->pAvPacket);
-			imp->pAvPacket = nullptr;
-		}
-		if (imp)
-		{
+	YCAVPacket::~YCAVPacket() {
+		if (imp) {
 			delete imp;
 			imp = nullptr;
 		}
 	}
 
-	int YCAVPacket::GetStreamIndex() const
-	{
-		return imp->pAvPacket->stream_index;
+	int YCAVPacket::GetStreamIndex() const {
+		return imp->pPacketPrivate->pAvPacket->stream_index;
 	}
 }

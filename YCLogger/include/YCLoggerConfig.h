@@ -6,12 +6,11 @@
 
 namespace YCLIB {
 
-enum class LoggerLevel
-{
-    Debug,
-    Info,
-    Warn,
-    Error,
-};
+	enum class LoggerLevel {
+		Debug,
+		Info,
+		Warn,
+		Error,
+	};
 
 }  // namespace YCLIB

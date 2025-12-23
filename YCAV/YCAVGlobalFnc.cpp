@@ -1,9 +1,7 @@
 #include "YCAVClassPrivate.h"
 
-namespace YCLIB
-{
-	string GetFfmpegErrorString(int err)
-	{
+namespace YCLIB {
+	string GetFfmpegErrorString(int err) {
 		char tmp[AV_ERROR_MAX_STRING_SIZE] = { 0 };
 		av_strerror(err, tmp, AV_ERROR_MAX_STRING_SIZE);
 		string ret = "";

@@ -5,11 +5,9 @@
 #include <mutex>
 #include <memory>
 
-namespace YCLIB
-{
+namespace YCLIB {
 	template<typename T>
-	class YCQueue
-	{
+	class YCQueue {
 	public:
 		YCQueue() = default;
 		~YCQueue() = default;
@@ -22,13 +20,11 @@ namespace YCLIB
 		YCQueue(YCQueue&&) = delete;
 		YCQueue& operator=(YCQueue&&) = delete;
 
-		void Push(std::shared_ptr<T> value)
-		{
+		void Push(std::shared_ptr<T> value) {
 			std::lock_guard<std::mutex> lock(mutex_);
 			queue_.push(value);
 		}
-		bool Pop(std::shared_ptr<T>& out)
-		{
+		bool Pop(std::shared_ptr<T>& out) {
 			std::lock_guard<std::mutex> lock(mutex_);
 			if (queue_.empty())
 				return false;
@@ -36,21 +32,17 @@ namespace YCLIB
 			queue_.pop();
 			return true;
 		}
-		bool IsEmpty() const
-		{
+		bool IsEmpty() const {
 			std::lock_guard<std::mutex> lock(mutex_);
 			return queue_.empty();
 		}
-		int Size() const
-		{
+		int Size() const {
 			std::lock_guard<std::mutex> lock(mutex_);
 			return static_cast<int>(queue_.size());
 		}
-		void Clear()
-		{
+		void Clear() {
 			std::lock_guard<std::mutex> lock(mutex_);
-			while (!queue_.empty())
-			{
+			while (!queue_.empty()) {
 				queue_.pop();
 			}
 		}

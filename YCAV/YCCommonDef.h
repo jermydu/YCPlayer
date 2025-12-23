@@ -1,10 +1,8 @@
 #ifndef _YCCOMMONDEF_H
 #define _YCCOMMONDEF_H
 
-namespace YCLIB
-{
-	enum class YCRet
-	{
+namespace YCLIB {
+	enum class YCRet :int32_t {
 		YCRet_TryAgain = 1,		   //重试中  比如数据正在准备中
 		YCRet_EOF = 2,             //读到文件或者流末尾
 		YCRet_NotSeekable = 3,     //文件或者流不能seek

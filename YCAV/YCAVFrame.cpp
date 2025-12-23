@@ -1,49 +1,41 @@
 #include "YCAV.h"	
 #include "YCAVClassPrivate.h"
 
-namespace YCLIB
-{
-	YCAVFrame::YCAVFrame()
-	{
+namespace YCLIB {
+	YCAVFrame::YCAVFrame() {
 		imp = new YCAVFramePrivate();
 		imp->pAvFrame = av_frame_alloc();
 	}
-	YCAVFrame::~YCAVFrame()
-	{
-		if (imp->pAvFrame)
-		{
+	YCAVFrame::~YCAVFrame() {
+		if (imp->pAvFrame) {
 			av_frame_free(&imp->pAvFrame);
 			imp->pAvFrame = nullptr;
 		}
-		if (imp)
-		{
+		if (imp) {
 			delete imp;
 			imp = nullptr;
 		}
 	}
 
-	YCRet YCAVFrame::PrintVideoInfo() const
-	{
+	YCRet YCAVFrame::PrintVideoInfo() const {
 		LOG_INFO("*********PrintVideoInfo:*********");
 		LOG_INFO("Pixel Width: {0}", { std::to_string(imp->pAvFrame->width) });
 		LOG_INFO("Pixel Height: {0}", { std::to_string(imp->pAvFrame->height) });
-		
+
 		AVPixelFormat format = static_cast<AVPixelFormat>(imp->pAvFrame->format);
 		char* formatString = (char*)malloc(128);
-		formatString = av_get_pix_fmt_string(formatString,128,format);
+		formatString = av_get_pix_fmt_string(formatString, 128, format);
 		LOG_INFO("Pixel Format: {0}", { static_cast<string>(formatString) });
 
 		free(formatString);
 
-		for (int i = 0; i < AV_NUM_DATA_POINTERS; i++)
-		{
-			LOG_INFO("Linesize[{0}]:{1}", {std::to_string(i),std::to_string(imp->pAvFrame->linesize[i])});
+		for (int i = 0; i < AV_NUM_DATA_POINTERS; i++) {
+			LOG_INFO("Linesize[{0}]:{1}", { std::to_string(i),std::to_string(imp->pAvFrame->linesize[i]) });
 		}
 		return YCRet::YCRet_OK;
 	}
 
-	YCRet YCAVFrame::PrintAudioInfo() const
-	{
+	YCRet YCAVFrame::PrintAudioInfo() const {
 		LOG_INFO("*********PrintAudioInfo:*********");
 		LOG_INFO("Audio Channel: {0}", { std::to_string(imp->pAvFrame->channels) });
 		LOG_INFO("Audio nb_samples: {0}", { std::to_string(imp->pAvFrame->nb_samples) });
@@ -56,81 +48,65 @@ namespace YCLIB
 
 		free(formatString);
 
-		for (int i = 0; i < AV_NUM_DATA_POINTERS; i++)
-		{
+		for (int i = 0; i < AV_NUM_DATA_POINTERS; i++) {
 			LOG_INFO("Linesize[{0}]:{1}", { std::to_string(i),std::to_string(imp->pAvFrame->linesize[i]) });
 		}
 		return YCRet::YCRet_OK;
 	}
 
-	int YCAVFrame::GetW() const
-	{
+	int YCAVFrame::GetW() const {
 		return imp->pAvFrame->width;
 	}
-	int YCAVFrame::GetH() const
-	{
-		return imp->pAvFrame->height;	
+	int YCAVFrame::GetH() const {
+		return imp->pAvFrame->height;
 	}
-	void YCAVFrame::GetY(unsigned char* y) const
-	{
-		if (imp->pAvFrame->format == AV_PIX_FMT_YUV420P)
-		{
+	void YCAVFrame::GetY(unsigned char* y) const {
+		if (imp->pAvFrame->format == AV_PIX_FMT_YUV420P) {
 			int width = GetW();
 			int height = GetH();
-			
+
 			// YUV420P格式的Y分量存储在data[0]中
 			// 每行的字节数由linesize[0]决定
 			// 复制Y分量数据到y缓冲区
 			// 注意：Y分量的宽度和高度与原始帧相同
 			//linesize 存在字节对齐的问题 可能会导致每行的字节数linesize大于实际宽度width
 			// menmcpy 拷贝实际的width字节数
-			for (int i = 0; i < height; i++)
-			{
+			for (int i = 0; i < height; i++) {
 				memcpy(y + i * width, imp->pAvFrame->data[0] + i * imp->pAvFrame->linesize[0], width);
 			}
 		}
-		else
-		{
+		else {
 			LOG_ERROR("Unsupported pixel format for Y channel extraction");
 		}
 	}
-	void YCAVFrame::GetU(unsigned char* u) const
-	{
-		if (imp->pAvFrame->format == AV_PIX_FMT_YUV420P)
-		{
+	void YCAVFrame::GetU(unsigned char* u) const {
+		if (imp->pAvFrame->format == AV_PIX_FMT_YUV420P) {
 			int width = GetW() / 2;
 			int height = GetH() / 2;
 
-			for (int i = 0; i < height; i++)
-			{
+			for (int i = 0; i < height; i++) {
 				memcpy(u + i * width, imp->pAvFrame->data[1] + i * imp->pAvFrame->linesize[1], width);
 			}
 		}
-		else
-		{
+		else {
 			LOG_ERROR("Unsupported pixel format for U channel extraction");
 		}
 	}
-	void YCAVFrame::GetV(unsigned char* v) const
-	{
-		if (imp->pAvFrame->format == AV_PIX_FMT_YUV420P)
-		{
+	void YCAVFrame::GetV(unsigned char* v) const {
+		if (imp->pAvFrame->format == AV_PIX_FMT_YUV420P) {
 			int width = GetW() / 2;
 			int height = GetH() / 2;
 
-			for (int i = 0; i < height; i++)
-			{
+			for (int i = 0; i < height; i++) {
 				memcpy(v + i * width, imp->pAvFrame->data[2] + i * imp->pAvFrame->linesize[2], width);
 			}
 		}
-		else
-		{
+		else {
 			LOG_ERROR("Unsupported pixel format for V channel extraction");
 		}
 	}
 
-	int YCAVFrame::GetPcmSize() const
-	{
+	int YCAVFrame::GetPcmSize() const {
 		// 获取音频帧的样本数和每个样本的字节数
 		int nb_samples = imp->pAvFrame->nb_samples; // 样本数
 		AVSampleFormat format = static_cast<AVSampleFormat>(imp->pAvFrame->format);
@@ -144,8 +120,7 @@ namespace YCLIB
 		return nb_samples * channels * bytes_per_sample; // 返回总的PCM数据大小
 	}
 
-	void YCAVFrame::GetPcm(unsigned char* pcm) const
-	{
+	void YCAVFrame::GetPcm(unsigned char* pcm) const {
 		int channels = imp->pAvFrame->channels;
 		int nb_samples = imp->pAvFrame->nb_samples; //样本数
 		AVSampleFormat format = static_cast<AVSampleFormat>(imp->pAvFrame->format);

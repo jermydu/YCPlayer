@@ -6,10 +6,8 @@
 #include <functional>
 #include <memory>
 
-namespace YCLIB
-{
-	class YCThread
-	{
+namespace YCLIB {
+	class YCThread {
 	public:
 		YCThread();
 		virtual ~YCThread();

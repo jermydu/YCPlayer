@@ -1,28 +1,28 @@
 #ifndef _YCAV_H
 #define _YCAV_H
 
-namespace YCLIB
-{
-	//避免外部引用这个文件的时候 需要指定ffmpeg头文件
+namespace YCLIB{
 	enum class YCRet;
 
+	//避免外部引用这个文件的时候 需要指定ffmpeg头文件
 	//avpacket 封装
-	class YCAVPacketPrivate;
-	class YCAVPacket
-	{	
+	class YCAVPacket{	
 	public:
 		YCAVPacket();
 		virtual ~YCAVPacket();
 		int GetStreamIndex() const; //获取流索引
-	public:
-		YCAVPacketPrivate* imp{nullptr};
+	private:
+		//允许 Reader YCAVDecoder 访问内部实现
+		friend class YCAVReader;
+		friend class YCAVDecoder;
+		struct Imp;
+		Imp* imp{nullptr};
 
 	};
 
 	//AVFrame的封装
 	class YCAVFramePrivate;
-	class YCAVFrame
-	{
+	class YCAVFrame{
 	public:
 		YCAVFrame();
 		~YCAVFrame();
@@ -41,10 +41,8 @@ namespace YCLIB
 	};
 
 	//avformatcontext 封装
-	class YCAVFormatPrivate;
 	class YCAVStream;
-	class YCAVReader 
-	{
+	class YCAVReader {
 	public:
 		YCAVReader();
 		virtual ~YCAVReader();
@@ -59,13 +57,14 @@ namespace YCLIB
 		int GetAudioStreamIndex() const;
 		
 	private:
-		YCAVFormatPrivate* imp{ nullptr };
+		//观察指针  智能指针放到.cpp中
+		struct Imp;
+		Imp* imp{ nullptr };
 	};
 
 	//avstream 封装
 	class YCAVStreamPrivate;
-	class YCAVStream
-	{
+	class YCAVStream{
 	public:
 		YCAVStream();
 		virtual ~YCAVStream();
@@ -76,8 +75,7 @@ namespace YCLIB
 
 	//avcodec 封装
 	class YCAVDecoderPrivate;
-	class YCAVDecoder
-	{
+	class YCAVDecoder{
 	public:
 		YCAVDecoder();
 		virtual ~YCAVDecoder();
@@ -87,7 +85,7 @@ namespace YCLIB
 		YCRet SendPacket(YCAVPacket* pYcAvPacket);
 		YCRet ReceiveFrame(YCAVFrame* pYcAvFrame);
 		//获取解码器索引
-		int GetDecoderIndex() const { return decoderIndex; } 
+		int GetDecoderIndex() const;
 	private:
 		YCAVDecoderPrivate* imp{ nullptr };
 		int decoderIndex{ -1 }; //解码器索引
