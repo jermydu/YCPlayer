@@ -2,15 +2,9 @@
 #include "YCAVClassPrivate.h"
 
 namespace YCLIB {
-	YCAVFrame::YCAVFrame() {
-		imp = new YCAVFramePrivate();
-		imp->pAvFrame = av_frame_alloc();
+	YCAVFrame::YCAVFrame() :imp(new Imp){
 	}
 	YCAVFrame::~YCAVFrame() {
-		if (imp->pAvFrame) {
-			av_frame_free(&imp->pAvFrame);
-			imp->pAvFrame = nullptr;
-		}
 		if (imp) {
 			delete imp;
 			imp = nullptr;
@@ -19,10 +13,10 @@ namespace YCLIB {
 
 	YCRet YCAVFrame::PrintVideoInfo() const {
 		LOG_INFO("*********PrintVideoInfo:*********");
-		LOG_INFO("Pixel Width: {0}", { std::to_string(imp->pAvFrame->width) });
-		LOG_INFO("Pixel Height: {0}", { std::to_string(imp->pAvFrame->height) });
+		LOG_INFO("Pixel Width: {0}", { std::to_string(imp->pFramePrivate->pAvFrame->width) });
+		LOG_INFO("Pixel Height: {0}", { std::to_string(imp->pFramePrivate->pAvFrame->height) });
 
-		AVPixelFormat format = static_cast<AVPixelFormat>(imp->pAvFrame->format);
+		AVPixelFormat format = static_cast<AVPixelFormat>(imp->pFramePrivate->pAvFrame->format);
 		char* formatString = (char*)malloc(128);
 		formatString = av_get_pix_fmt_string(formatString, 128, format);
 		LOG_INFO("Pixel Format: {0}", { static_cast<string>(formatString) });
@@ -30,18 +24,18 @@ namespace YCLIB {
 		free(formatString);
 
 		for (int i = 0; i < AV_NUM_DATA_POINTERS; i++) {
-			LOG_INFO("Linesize[{0}]:{1}", { std::to_string(i),std::to_string(imp->pAvFrame->linesize[i]) });
+			LOG_INFO("Linesize[{0}]:{1}", { std::to_string(i),std::to_string(imp->pFramePrivate->pAvFrame->linesize[i]) });
 		}
 		return YCRet::YCRet_OK;
 	}
 
 	YCRet YCAVFrame::PrintAudioInfo() const {
 		LOG_INFO("*********PrintAudioInfo:*********");
-		LOG_INFO("Audio Channel: {0}", { std::to_string(imp->pAvFrame->channels) });
-		LOG_INFO("Audio nb_samples: {0}", { std::to_string(imp->pAvFrame->nb_samples) });
-		LOG_INFO("Audio sample_rate: {0}", { std::to_string(imp->pAvFrame->sample_rate) });
+		LOG_INFO("Audio Channel: {0}", { std::to_string(imp->pFramePrivate->pAvFrame->channels) });
+		LOG_INFO("Audio nb_samples: {0}", { std::to_string(imp->pFramePrivate->pAvFrame->nb_samples) });
+		LOG_INFO("Audio sample_rate: {0}", { std::to_string(imp->pFramePrivate->pAvFrame->sample_rate) });
 
-		AVSampleFormat format = static_cast<AVSampleFormat>(imp->pAvFrame->format);
+		AVSampleFormat format = static_cast<AVSampleFormat>(imp->pFramePrivate->pAvFrame->format);
 		char* formatString = (char*)malloc(128);
 		formatString = av_get_sample_fmt_string(formatString, 128, format);
 		LOG_INFO("Sample Format: {0}", { static_cast<string>(formatString) });
@@ -49,19 +43,19 @@ namespace YCLIB {
 		free(formatString);
 
 		for (int i = 0; i < AV_NUM_DATA_POINTERS; i++) {
-			LOG_INFO("Linesize[{0}]:{1}", { std::to_string(i),std::to_string(imp->pAvFrame->linesize[i]) });
+			LOG_INFO("Linesize[{0}]:{1}", { std::to_string(i),std::to_string(imp->pFramePrivate->pAvFrame->linesize[i]) });
 		}
 		return YCRet::YCRet_OK;
 	}
 
 	int YCAVFrame::GetW() const {
-		return imp->pAvFrame->width;
+		return imp->pFramePrivate->pAvFrame->width;
 	}
 	int YCAVFrame::GetH() const {
-		return imp->pAvFrame->height;
+		return imp->pFramePrivate->pAvFrame->height;
 	}
 	void YCAVFrame::GetY(unsigned char* y) const {
-		if (imp->pAvFrame->format == AV_PIX_FMT_YUV420P) {
+		if (imp->pFramePrivate->pAvFrame->format == AV_PIX_FMT_YUV420P) {
 			int width = GetW();
 			int height = GetH();
 
@@ -72,7 +66,7 @@ namespace YCLIB {
 			//linesize 存在字节对齐的问题 可能会导致每行的字节数linesize大于实际宽度width
 			// menmcpy 拷贝实际的width字节数
 			for (int i = 0; i < height; i++) {
-				memcpy(y + i * width, imp->pAvFrame->data[0] + i * imp->pAvFrame->linesize[0], width);
+				memcpy(y + i * width, imp->pFramePrivate->pAvFrame->data[0] + i * imp->pFramePrivate->pAvFrame->linesize[0], width);
 			}
 		}
 		else {
@@ -80,12 +74,12 @@ namespace YCLIB {
 		}
 	}
 	void YCAVFrame::GetU(unsigned char* u) const {
-		if (imp->pAvFrame->format == AV_PIX_FMT_YUV420P) {
+		if (imp->pFramePrivate->pAvFrame->format == AV_PIX_FMT_YUV420P) {
 			int width = GetW() / 2;
 			int height = GetH() / 2;
 
 			for (int i = 0; i < height; i++) {
-				memcpy(u + i * width, imp->pAvFrame->data[1] + i * imp->pAvFrame->linesize[1], width);
+				memcpy(u + i * width, imp->pFramePrivate->pAvFrame->data[1] + i * imp->pFramePrivate->pAvFrame->linesize[1], width);
 			}
 		}
 		else {
@@ -93,12 +87,12 @@ namespace YCLIB {
 		}
 	}
 	void YCAVFrame::GetV(unsigned char* v) const {
-		if (imp->pAvFrame->format == AV_PIX_FMT_YUV420P) {
+		if (imp->pFramePrivate->pAvFrame->format == AV_PIX_FMT_YUV420P) {
 			int width = GetW() / 2;
 			int height = GetH() / 2;
 
 			for (int i = 0; i < height; i++) {
-				memcpy(v + i * width, imp->pAvFrame->data[2] + i * imp->pAvFrame->linesize[2], width);
+				memcpy(v + i * width, imp->pFramePrivate->pAvFrame->data[2] + i * imp->pFramePrivate->pAvFrame->linesize[2], width);
 			}
 		}
 		else {
@@ -108,29 +102,29 @@ namespace YCLIB {
 
 	int YCAVFrame::GetPcmSize() const {
 		// 获取音频帧的样本数和每个样本的字节数
-		int nb_samples = imp->pAvFrame->nb_samples; // 样本数
-		AVSampleFormat format = static_cast<AVSampleFormat>(imp->pAvFrame->format);
+		int nb_samples = imp->pFramePrivate->pAvFrame->nb_samples; // 样本数
+		AVSampleFormat format = static_cast<AVSampleFormat>(imp->pFramePrivate->pAvFrame->format);
 		int bytes_per_sample = av_get_bytes_per_sample(format);
 
 		if (bytes_per_sample < 0) {
 			LOG_ERROR("Invalid sample format");
 			return -1;
 		}
-		int channels = imp->pAvFrame->channels;
+		int channels = imp->pFramePrivate->pAvFrame->channels;
 		return nb_samples * channels * bytes_per_sample; // 返回总的PCM数据大小
 	}
 
 	void YCAVFrame::GetPcm(unsigned char* pcm) const {
-		int channels = imp->pAvFrame->channels;
-		int nb_samples = imp->pAvFrame->nb_samples; //样本数
-		AVSampleFormat format = static_cast<AVSampleFormat>(imp->pAvFrame->format);
+		int channels = imp->pFramePrivate->pAvFrame->channels;
+		int nb_samples = imp->pFramePrivate->pAvFrame->nb_samples; //样本数
+		AVSampleFormat format = static_cast<AVSampleFormat>(imp->pFramePrivate->pAvFrame->format);
 		//获取每个样本的字节数
 		int bytes_per_sample = av_get_bytes_per_sample(format);
 
 		if (av_sample_fmt_is_planar(format)) {
 			// planar: 每个通道分开存储
 			/*for (int ch = 0; ch < channels; ++ch) {
-				unsigned char* src = imp->pAvFrame->data[ch];
+				unsigned char* src = imp->pFramePrivate->pAvFrame->data[ch];
 				for (int i = 0; i < nb_samples; ++i) {
 					memcpy(pcm, src + i * bytes_per_sample, bytes_per_sample);
 					pcm += bytes_per_sample;
@@ -143,7 +137,7 @@ namespace YCLIB {
 			//使用ffplay播放时需要把planar格式转换为packed格式,否则播放的时候会有杂音且速度比较快 呵呵 
 			for (int i = 0; i < nb_samples; ++i) {
 				for (int ch = 0; ch < channels; ++ch) {
-					unsigned char* src = imp->pAvFrame->data[ch];
+					unsigned char* src = imp->pFramePrivate->pAvFrame->data[ch];
 					memcpy(pcm, src + i * bytes_per_sample, bytes_per_sample);
 					pcm += bytes_per_sample;
 				}
@@ -152,7 +146,7 @@ namespace YCLIB {
 		else {
 			// packed: 所有通道交错存储
 			int frame_size = nb_samples * channels * bytes_per_sample;
-			memcpy(pcm, imp->pAvFrame->data[0], frame_size);
+			memcpy(pcm, imp->pFramePrivate->pAvFrame->data[0], frame_size);
 		}
 	}
 }

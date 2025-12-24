@@ -151,7 +151,7 @@ namespace YCLIB {
 		if (imp->pFormatPrivate->pAvFormatContext) {
 			AVStream* pAVStream = imp->pFormatPrivate->pAvFormatContext->streams[index];
 			pYcAvStream->streamIndex = pAVStream->index;
-			avcodec_parameters_copy(pYcAvStream->imp->pAvCodecParameters, pAVStream->codecpar);
+			avcodec_parameters_copy(pYcAvStream->imp->pStreamPrivate->pAvCodecParameters, pAVStream->codecpar);
 
 			return YCRet::YCRet_OK;
 		} else {

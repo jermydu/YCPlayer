@@ -1,12 +1,19 @@
 #ifndef _YCAV_H
 #define _YCAV_H
 
+#ifdef YCAV_EXPORTS
+	#define YCAV_API __declspec(dllexport)
+#else
+	#define YCAV_API __declspec(dllimport)
+#endif // YCAV_EXPORTS
+
+
 namespace YCLIB{
 	enum class YCRet;
 
 	//避免外部引用这个文件的时候 需要指定ffmpeg头文件
 	//avpacket 封装
-	class YCAVPacket{	
+	class YCAV_API YCAVPacket{
 	public:
 		YCAVPacket();
 		virtual ~YCAVPacket();
@@ -21,8 +28,7 @@ namespace YCLIB{
 	};
 
 	//AVFrame的封装
-	class YCAVFramePrivate;
-	class YCAVFrame{
+	class YCAV_API YCAVFrame{
 	public:
 		YCAVFrame();
 		~YCAVFrame();
@@ -37,12 +43,23 @@ namespace YCLIB{
 		int GetPcmSize()const; //获取pcm数据大小
 		void GetPcm(unsigned char* pcm) const; //获取pcm数据
 	public:
-		YCAVFramePrivate* imp{ nullptr }; 
+		struct Imp;
+		Imp* imp{ nullptr };
+	};
+
+	//avstream 封装
+	class YCAV_API YCAVStream{
+	public:
+		YCAVStream();
+		virtual ~YCAVStream();
+	public:
+		int streamIndex{ -1 }; //流索引
+		struct Imp;
+		Imp* imp{ nullptr };
 	};
 
 	//avformatcontext 封装
-	class YCAVStream;
-	class YCAVReader {
+	class YCAV_API YCAVReader {
 	public:
 		YCAVReader();
 		virtual ~YCAVReader();
@@ -62,20 +79,9 @@ namespace YCLIB{
 		Imp* imp{ nullptr };
 	};
 
-	//avstream 封装
-	class YCAVStreamPrivate;
-	class YCAVStream{
-	public:
-		YCAVStream();
-		virtual ~YCAVStream();
-	public:
-		int streamIndex{ -1 }; //流索引
-		YCAVStreamPrivate* imp{ nullptr };
-	};
 
 	//avcodec 封装
-	class YCAVDecoderPrivate;
-	class YCAVDecoder{
+	class YCAV_API YCAVDecoder{
 	public:
 		YCAVDecoder();
 		virtual ~YCAVDecoder();
@@ -87,7 +93,8 @@ namespace YCLIB{
 		//获取解码器索引
 		int GetDecoderIndex() const;
 	private:
-		YCAVDecoderPrivate* imp{ nullptr };
+		struct Imp;
+		Imp* imp{ nullptr };
 		int decoderIndex{ -1 }; //解码器索引
 	};
 }

@@ -16,8 +16,7 @@ extern "C"
 using namespace std;
 
 namespace YCLIB {
-	class YCAVPacketPrivate {
-	public:
+	struct YCAVPacketPrivate {
 		AVPacket* pAvPacket{ nullptr };
 		YCAVPacketPrivate();
 		virtual ~YCAVPacketPrivate();
@@ -30,8 +29,7 @@ namespace YCLIB {
 		}
 	};
 
-	class YCAVFormatPrivate {
-	public:
+	struct YCAVFormatPrivate {
 		AVFormatContext* pAvFormatContext{ nullptr };
 		YCAVFormatPrivate();
 		virtual ~YCAVFormatPrivate();
@@ -44,19 +42,43 @@ namespace YCLIB {
 		}
 	};
 
-	class YCAVDecoderPrivate {
-	public:
+	struct YCAVDecoderPrivate {
 		AVCodecContext* pAvCodecContext{ nullptr };
+		YCAVDecoderPrivate();
+		virtual ~YCAVDecoderPrivate();
 	};
 
-	class YCAVStreamPrivate {
-	public:
+	struct YCAVDecoder::Imp {
+		std::unique_ptr<YCAVDecoderPrivate> pDecoderPrivate;
+		Imp() :pDecoderPrivate(std::make_unique<YCAVDecoderPrivate>()) {
+
+		}
+	};
+
+	struct YCAVStreamPrivate {
 		AVCodecParameters* pAvCodecParameters{ nullptr }; //流的编解码参数
+		YCAVStreamPrivate();
+		virtual ~YCAVStreamPrivate();
 	};
 
-	class YCAVFramePrivate {
-	public:
+	struct YCAVStream::Imp {
+		std::unique_ptr<YCAVStreamPrivate> pStreamPrivate;
+		Imp() :pStreamPrivate(std::make_unique<YCAVStreamPrivate>()) {
+
+		}
+	};
+
+	struct YCAVFramePrivate {
 		AVFrame* pAvFrame{ nullptr }; //解码后的视频帧	
+		YCAVFramePrivate();
+		virtual ~YCAVFramePrivate();
+	};
+
+	struct YCAVFrame::Imp {
+		std::unique_ptr<YCAVFramePrivate> pFramePrivate;
+		Imp() : pFramePrivate(std::make_unique<YCAVFramePrivate>()) {
+
+		}
 	};
 
 	string GetFfmpegErrorString(int err);

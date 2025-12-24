@@ -26,7 +26,11 @@ target_sources(YCAV PRIVATE
 )
 
 #导出所有符号
-set_target_properties(YCAV PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS ON)
+#set_target_properties(YCAV PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS ON)
+set_target_properties(YCAV PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS OFF)
+
+# 编译 DLL 时定义 YCAV_EXPORTS
+target_compile_definitions(YCAV PRIVATE YCAV_EXPORTS)
 
 target_link_libraries(YCAV PRIVATE
     avcodec
